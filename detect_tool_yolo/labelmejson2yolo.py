@@ -14,12 +14,10 @@
 * limitations under the License.
 *****************************************************************************'''
 import json
-import yaml
-import random
-import cv2
+from progressbar import ProgressBar
 import numpy as np
 import os
-from utils.file import check_folder
+from utils.file import filetool
 
 '''
 labelme rectange json format example
@@ -63,11 +61,21 @@ class LabelmeRectangelJson2yolo:
     self.images_path = os.path.join(args.output_dir, "images")
     self.labels_path = os.path.join(args.output_dir, "labels")
     self.sets_main = os.path.join(args.output_dir, "ImageSets/Main")    
-    check_folder(self.images_path)
-    check_folder(self.labels_path)
-    check_folder(self.sets_main)
+    filetool.check_folder(self.images_path)
+    filetool.check_folder(self.labels_path)
+    filetool.check_folder(self.sets_main)
     
-    calss_labels = self.readLabelmeRectangelLabel(args.labels)['names']
+    # calss_labels = self.readLabelmeRectangelLabel(args.labels)['names']
+    if args.labels == "":
+      calss_labels = []
+    elif args.labels.rsplit('.', 1)[1]=='txt':
+      print("txt")
+      calss_labels = filetool.readLabelmeRectangelLabelTxt(args.labels)
+    elif args.labels.rsplit('.', 1)[1]=='yaml':
+      calss_labels = filetool.readLabelmeRectangelLabelYaml(args.labels)['names']
+    else:
+      raise ValueError('--labels paremeter error, must end with:',
+                       '.txt', '.yaml') 
     self.class_name = {}
     for i in range(len(calss_labels)):
       self.class_name[calss_labels[i]]= i
@@ -75,25 +83,27 @@ class LabelmeRectangelJson2yolo:
     lableme_rectangle_json_file_list=os.listdir(self.path_of_json_folder)
     self.rectangle_json_files=[x for x in lableme_rectangle_json_file_list if ".json" in x]
     
-  def convert(self):
+  def convert(self):    
+    print("labeled sample num: ",len(self.rectangle_json_files))
+    pbar = ProgressBar().start()
+    i=0
     for rectangle_json_file in self.rectangle_json_files:
       inputLabelmeLabelJson = os.path.join(self.path_of_json_folder, rectangle_json_file)
       outputYoloFile = os.path.join(self.labels_path, rectangle_json_file.replace('json','txt'))
-      print("file: ", rectangle_json_file)
+      # print("file: ", rectangle_json_file)
       self.rectangelJson2yolo(inputLabelmeLabelJson, outputYoloFile)
-    self.generate_val_train_txt()
+      pbar.update(i/len(self.rectangle_json_files)*100)
+      i +=1
+    filetool.generate_yolosets_val_train_txt(label_file_list=self.rectangle_json_files, test_ratio=self.testRatio, 
+                                    random_seed=self.randomSeed, tranval_save_dir=self.sets_main)
     print("\033[35mcovert over, please copy all image samples to folder {}\033[0m".format(self.images_path))
-
-  def readLabelmeRectangelLabel(self, yaml_file):
-    with open(yaml_file, 'r') as file:
-      data = yaml.safe_load(file)
-    return data
   
   def rectangelJson2yolo(self, input_json, out_yoloFile):
     data = json.load(open(input_json,encoding="utf-8"))
     width=data["imageWidth"]
     height=data["imageHeight"]
     all_line=''
+    class_name_yolo = ''
     for i in  data["shapes"]:
         [[x1,y1],[x2,y2]]=i['points']
         x1,x2=x1/width,x2/width
@@ -102,35 +112,20 @@ class LabelmeRectangelJson2yolo:
         cy=(y1+y2)/2
         w=abs(x2-x1)
         h=abs(y2-y1)
-        line="%s %.4f %.4f %.4f %.4f\n"%(self.class_name[i['label']],cx,cy,w,h)
+        if len(self.class_name)>0:
+          class_name_yolo = self.class_name[i['label']]          
+        elif i["label"] != '':
+          print("\033[0;31;40monly display show, not specific class_name, please check --labels labels.txt{}\033[0m".format(self.images_path))
+          class_name_yolo = i["label"]
+        else:
+          raise ValueError('--labels not specific, should have:',
+                       '*.txt', '*.yaml')
+        line="%s %.4f %.4f %.4f %.4f\n"%(class_name_yolo, cx, cy, w, h)
         all_line+=line
     fh=open(out_yoloFile,'w',encoding='utf-8')
     fh.write(all_line)
     fh.close()
     
-  def generate_val_train_txt(self):
-    split = ['train', 'val', 'trainval']
-    patch_fn_list = [fn.split('/')[-1][:-5] for fn in self.rectangle_json_files]
-    random.seed(self.randomSeed)
-    random.shuffle(patch_fn_list)
-    train_num = int((1-self.testRatio) * len(patch_fn_list))
-    train_patch_list = patch_fn_list[:train_num]
-    valid_patch_list = patch_fn_list[train_num:]
-    for s in split:
-      save_path = os.path.join(self.sets_main, s + '.txt')  
-      if s == 'train':
-          with open(save_path, 'w') as f:
-              for fn in train_patch_list:
-                  f.write('%s\n' % fn)
-      elif s == 'val':
-          with open(save_path, 'w') as f:
-              for fn in valid_patch_list:
-                  f.write('%s\n' % fn)
-      elif s == 'trainval':
-          with open(save_path, 'w') as f:
-              for fn in patch_fn_list:
-                  f.write('%s\n' % fn)
-      print('\033[32mFinish Producing %s txt file to %s\033[0m' % (s, save_path))
     
 class DynamicAccess:
   def __getattr__(self, item):
@@ -138,7 +133,6 @@ class DynamicAccess:
             'output_dir':'./traffic_light', 
             'labels':'/home/udi/WareHouse/dataset/traffic_light_sample/traffic_light_1.yaml'}
     return args.get(item)
-  
   
 if __name__ == '__main__':
   args = DynamicAccess()

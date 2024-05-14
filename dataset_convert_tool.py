@@ -18,30 +18,32 @@ from __future__ import print_function
 import argparse
 from progressbar import ProgressBar
 
-from detect_tool.labelmejson2yolo import *
-from utils.file import check_folder
+from detect_tool_yolo.labelmejson2yolo import *
+from detect_tool_yolo.rectvocxml2yolo import VocXml2YOLO
 
 class ARGs:
     def __init__(self):
-        parser = argparse.ArgumentParser(description='labelmejson2yolo')
-        rectangle = parser.add_argument_group('rectangle datasets', 'rectangle label sample convert to other format')
-        covertWK = rectangle.add_mutually_exclusive_group(required=True)
-        covertWK.add_argument('--rectjson2yolo', action='store_true')
-        covertWK.add_argument('--voc2yolo', action='store_false')
-        covertWK.add_argument('--json2voc', action='store_false')
-        covertWK.add_argument('--coco2voc', action='store_false')
-        covertWK.add_argument('--json2coco', action='store_false')
-        covertWK.add_argument('--voc2coco', action='store_false')
+        parser = argparse.ArgumentParser(prog='convert_tool',description='dataset_convert_tool', formatter_class=argparse.RawDescriptionHelpFormatter)
+        rectanglelabel = parser.add_argument_group('rectangle datasets', 'rectangle label sample convert to other format')
+        covertWK = rectanglelabel.add_mutually_exclusive_group(required=True)
+        covertWK.add_argument('--rectjson2yolo', action='store_true', help="labelme rectangle label convert to yolo datasets")
+        covertWK.add_argument('--rectvoc2yolo', action='store_true', help="VOC rectangle label convert to yolo datasets")
+        covertWK.add_argument('--json2voc', action='store_true', help="labelme rectangle label convert to VOC datasets")
+        covertWK.add_argument('--coco2voc', action='store_true', help="coco rectangle label convert to VOC datasets")
+        covertWK.add_argument('--json2coco', action='store_true', help="lableme rectangle label convert to coco datasets")
+        covertWK.add_argument('--voc2coco', action='store_true', help="voc rectangle label convert to coco datasets")
 
-        json2yolo = parser.add_argument_group('json2yolo', 'labelme detect label convert to yolo description')
-        json2yolo.add_argument('--json_dir', type=str, default='data/sample.json', help='path to labelme json file')        
-        json2yolo.add_argument("--labels", help="labels file of yaml format", required=True)
-        json2yolo.add_argument('--test_ratio', type=float, default=0.3, help='test ratio')
-        json2yolo.add_argument('--random_seed', type=int, default=42, help='random seed for data shuffling')
+        rectjson2yolo = parser.add_argument_group('rectjson2yolo', 'labelme detect label convert to yolo description')
+        rectjson2yolo.add_argument('--json_dir', type=str, default='label_dir/', help='path to labelme json file DIR') 
+        
+        rectvoc2yolo = parser.add_argument_group('rectvoc2yolo', 'rectangle voc label convert to yolo description')
+        rectvoc2yolo.add_argument('--xml_dir', type=str, default='Annotation/', help='path to labelme json file DIR')   
         
         genneralSet = parser.add_argument_group('genneral', 'general parameter setting')        
-        genneralSet.add_argument('--output_dir', type=str, default='output/test_single_output', help='path to output directory')
-
+        genneralSet.add_argument('--output_dir', type=str, default='output/traffic_light_dataset', help='out the datasets root directory')
+        genneralSet.add_argument("--labels", default='', help="labels file of txt(labelme --labels labels.txt) format")        
+        genneralSet.add_argument('--test_ratio', type=float, default=0.3, help='test ratio')
+        genneralSet.add_argument('--random_seed', type=int, default=42, help='random seed for data shuffling')
         
         # parser.print_help()
         self.args = parser.parse_args()
@@ -61,8 +63,10 @@ if __name__ == '__main__':
     '''
     args = ARGs().get_opts()
     if args.rectjson2yolo:
-        check_folder(args.output_dir)
         convert = LabelmeRectangelJson2yolo(args)
+        convert.convert()
+    elif args.rectvoc2yolo:
+        convert = VocXml2YOLO(args)
         convert.convert()
     else:
         print("please check you parameter")
