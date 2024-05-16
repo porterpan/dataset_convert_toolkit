@@ -14,7 +14,7 @@
 * limitations under the License.
 *****************************************************************************'''
 import xml.etree.ElementTree as ET
-from progressbar import ProgressBar
+from tqdm import tqdm
 import os
 import random
 from utils.file import filetool
@@ -78,17 +78,20 @@ class VocXml2YOLO:
 
     def convert(self):
         print("labeled sample num: ",len(self.rectangle_xml_files))
-        pbar = ProgressBar().start()
-        i=0
+        pbar = tqdm(total=100)
+        bar_count = 1/len(self.rectangle_xml_files)*100
+        # i=0
         for rectangle_xml_file in self.rectangle_xml_files:
             inputVocLabelXml = os.path.join(self.path_of_xml_folder, rectangle_xml_file)
             outputYoloFile = os.path.join(self.labels_path, rectangle_xml_file.replace('xml','txt'))
             # print("file: ", rectangle_json_file)
             self.rectangelVoc2yolo(inputVocLabelXml, outputYoloFile)
-            pbar.update(i/len(self.rectangle_xml_files)*100)
-            i +=1
-        filetool.generate_yolosets_val_train_txt(label_file_list=self.rectangle_xml_files, test_ratio=self.testRatio, 
-                                        random_seed=self.randomSeed, tranval_save_dir=self.sets_main)
+            # pbar.update(i/len(self.rectangle_xml_files)*100)
+            pbar.update(bar_count)
+            # i +=1
+        pbar.close()
+        filetool.generate_sets_val_train_txt(label_file_list=self.rectangle_xml_files, test_ratio=self.testRatio, 
+                                        random_seed=self.randomSeed, tranval_save_dir=self.sets_main, endwith='.xml')
         print("\033[35mcovert over, please copy all JEPGImages image samples to folder {}\033[0m".format(self.images_path))
     
     def convertYoloFormat(self, size, box):

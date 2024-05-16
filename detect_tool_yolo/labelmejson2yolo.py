@@ -14,7 +14,7 @@
 * limitations under the License.
 *****************************************************************************'''
 import json
-from progressbar import ProgressBar
+from tqdm import tqdm
 import numpy as np
 import os
 from utils.file import filetool
@@ -85,16 +85,15 @@ class LabelmeRectangelJson2yolo:
     
   def convert(self):    
     print("labeled sample num: ",len(self.rectangle_json_files))
-    pbar = ProgressBar().start()
-    i=0
+    pbar = tqdm(total=100)
+    bar_count = 1/len(self.rectangle_json_files)*100
     for rectangle_json_file in self.rectangle_json_files:
       inputLabelmeLabelJson = os.path.join(self.path_of_json_folder, rectangle_json_file)
       outputYoloFile = os.path.join(self.labels_path, rectangle_json_file.replace('json','txt'))
-      # print("file: ", rectangle_json_file)
       self.rectangelJson2yolo(inputLabelmeLabelJson, outputYoloFile)
-      pbar.update(i/len(self.rectangle_json_files)*100)
-      i +=1
-    filetool.generate_yolosets_val_train_txt(label_file_list=self.rectangle_json_files, test_ratio=self.testRatio, 
+      pbar.update(bar_count)
+    pbar.close()
+    filetool.generate_sets_val_train_txt(label_file_list=self.rectangle_json_files, test_ratio=self.testRatio, 
                                     random_seed=self.randomSeed, tranval_save_dir=self.sets_main)
     print("\033[35mcovert over, please copy all image samples to folder {}\033[0m".format(self.images_path))
   
@@ -131,7 +130,7 @@ class DynamicAccess:
   def __getattr__(self, item):
     args = {'json_dir':'/home/udi/WareHouse/dataset/traffic_light_sample/yc_traffic_sample_annocation/label_day_10_22', 
             'output_dir':'./traffic_light', 
-            'labels':'/home/udi/WareHouse/dataset/traffic_light_sample/traffic_light_1.yaml'}
+            'labels':'config/laneline.yaml'}
     return args.get(item)
   
 if __name__ == '__main__':

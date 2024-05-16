@@ -24,15 +24,16 @@ class filetool:
         检查文件夹是否存在, 如果不存在，创建文件夹
         '''
         if not os.path.exists(folder_name):        
-            os.makedirs(folder_name)
+            os.makedirs(folder_name, exist_ok=True)
             print(f"文件夹'{folder_name}'已创建。")
         else:
             print(f"文件夹'{folder_name}'已存在。")
+        
           
     @staticmethod    
-    def generate_yolosets_val_train_txt(label_file_list, test_ratio=0.2, random_seed=42, tranval_save_dir='./'):
+    def generate_sets_val_train_txt(label_file_list, test_ratio=0.2, random_seed=42, tranval_save_dir='./', endwith = '.json'):
         split = ['train', 'val', 'trainval']
-        patch_fn_list = [fn.split('.xml')[0] for fn in label_file_list]
+        patch_fn_list = [fn.split(endwith)[0] for fn in label_file_list]
         random.seed(random_seed)
         random.shuffle(patch_fn_list)
         train_num = int((1-test_ratio) * len(patch_fn_list))
@@ -53,6 +54,8 @@ class filetool:
                     for fn in patch_fn_list:
                         f.write('%s\n' % fn)
         print('\033[32mFinish Producing %s txt file to %s\033[0m' % (s, save_path))
+    
+        
         
     @staticmethod  
     def readLabelmeRectangelLabelYaml(yaml_file):

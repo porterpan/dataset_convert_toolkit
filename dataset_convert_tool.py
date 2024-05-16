@@ -16,28 +16,46 @@
 
 from __future__ import print_function
 import argparse
-from progressbar import ProgressBar
 
 from detect_tool_yolo.labelmejson2yolo import *
 from detect_tool_yolo.rectvocxml2yolo import VocXml2YOLO
+from detect_tool_yolo.cocojson2yolo import CocoJson2YOLO
+from detect_laneline_tool_culane.labelmejson2culane import LabelmeJson2Culane
 
 class ARGs:
     def __init__(self):
-        parser = argparse.ArgumentParser(prog='convert_tool',description='dataset_convert_tool', formatter_class=argparse.RawDescriptionHelpFormatter)
+        parser = argparse.ArgumentParser(prog='convert_tool',description='dataset_convert_tool', formatter_class=argparse.RawDescriptionHelpFormatter, 
+                                         epilog='eg:\n \
+                                         1. convert labelme line label to mark and line point:\n \
+                                            python dataset_convert_tool.py --linejson2culane --line_json_dir \'datasetsample/laneline_test/label\' --output_dir \'./culane\' --labels \'config/laneline.yaml\' --sample_dir \'datasetsample/laneline_test/foxcon\' --crop_height 0.5 \n \
+                                        2. '
+                                         )
         rectanglelabel = parser.add_argument_group('rectangle datasets', 'rectangle label sample convert to other format')
         covertWK = rectanglelabel.add_mutually_exclusive_group(required=True)
         covertWK.add_argument('--rectjson2yolo', action='store_true', help="labelme rectangle label convert to yolo datasets")
         covertWK.add_argument('--rectvoc2yolo', action='store_true', help="VOC rectangle label convert to yolo datasets")
+        covertWK.add_argument('--rectcoco2yolo', action='store_true', help="COCO rectangle label convert to yolo datasets")
         covertWK.add_argument('--json2voc', action='store_true', help="labelme rectangle label convert to VOC datasets")
         covertWK.add_argument('--coco2voc', action='store_true', help="coco rectangle label convert to VOC datasets")
         covertWK.add_argument('--json2coco', action='store_true', help="lableme rectangle label convert to coco datasets")
         covertWK.add_argument('--voc2coco', action='store_true', help="voc rectangle label convert to coco datasets")
+        covertWK.add_argument('--linejson2culane', action='store_true', help="labelme line label convert to culane datasets")
+        # covertWK.add_argument('--linejson2culane', action='store_true', help="labelme line label convert to culane datasets")
 
         rectjson2yolo = parser.add_argument_group('rectjson2yolo', 'labelme detect label convert to yolo description')
         rectjson2yolo.add_argument('--json_dir', type=str, default='label_dir/', help='path to labelme json file DIR') 
         
         rectvoc2yolo = parser.add_argument_group('rectvoc2yolo', 'rectangle voc label convert to yolo description')
         rectvoc2yolo.add_argument('--xml_dir', type=str, default='Annotation/', help='path to labelme json file DIR')   
+        
+        rectvoc2yolo = parser.add_argument_group('rectcoco2yolo', 'rectangle coco label convert to yolo description')
+        rectvoc2yolo.add_argument('--cocojson_file', type=str, default='annotations/captions_train2017.json', help='the coco json file path')  
+        
+        labelmejson2culane = parser.add_argument_group('labelmejson2culane', 'lane line label base on labelme convert to culane description')
+        labelmejson2culane.add_argument('--line_json_dir', type=str, default='annotations/', help='the labelme line json file path')  
+        labelmejson2culane.add_argument('--sample_dir', type=str, default='part1/', help='the labelme line source image of sample floder')  
+        labelmejson2culane.add_argument('--crop_height', type=float, default=0, help='image height [0-1]. crop_height will only save [crop_height-1]*height') 
+        
         
         genneralSet = parser.add_argument_group('genneral', 'general parameter setting')        
         genneralSet.add_argument('--output_dir', type=str, default='output/traffic_light_dataset', help='out the datasets root directory')
@@ -67,6 +85,12 @@ if __name__ == '__main__':
         convert.convert()
     elif args.rectvoc2yolo:
         convert = VocXml2YOLO(args)
+        convert.convert()
+    elif args.rectcoco2yolo:
+        convert = CocoJson2YOLO(args)
+        convert.convert()
+    elif args.linejson2culane:
+        convert = LabelmeJson2Culane(args)
         convert.convert()
     else:
         print("please check you parameter")
