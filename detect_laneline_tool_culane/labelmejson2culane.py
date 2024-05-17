@@ -149,9 +149,11 @@ class LabelmeJson2Culane:
                                     random_seed=self.randomSeed, tranval_save_dir=self.lanelineDatasetsList_DIR, endwith='.json')
     # 生成train_gt.txt val_gt.txt
     self.generate_train_val_gt()
-    self.convert_line_points_to_image()
     print("\033[35mcovert over, please check all image samples to folder {}\033[0m".format(self.lanelineDatasetsSample_DIR))
-  
+    self.convert_line_points_to_image()
+    print("\033[33mTips: you can find *.line.txt put on label status in folder {}\033[0m".format(self.lanelineDatasetsMarskdisplaySample_DIR))
+    
+    
   def generate_train_val_gt(self):
     # read train.txt and val.txt
     filelist = ['train', 'val', 'trainval']
