@@ -1,5 +1,0 @@
-/foxcon/1682315089.487194.jpg /laneseg_label_w16/foxcon/1682315089.487194.png 1 1 1 0
-/foxcon/1682315096.786306.jpg /laneseg_label_w16/foxcon/1682315096.786306.png 1 1 1 0
-/foxcon/1682315093.575532.jpg /laneseg_label_w16/foxcon/1682315093.575532.png 1 1 1 0
-/foxcon/1682315099.807245.jpg /laneseg_label_w16/foxcon/1682315099.807245.png 1 1 1 0
-
