@@ -29,8 +29,8 @@ setuptools.setup(
     ],
     enter_points={
         'console_scripts':[
-            'dataset_convert_tool = dataset_convert_toolkit.dataset_convert_tool.main',
-            'ua_detrac_convert_tool = dataset_convert_toolkit.ua_detrac_convert_tool.main',
+            'dataset_convert_tool = dataset_convert_toolkit.dataset_convert_tool:main',
+            'ua_detrac_convert_tool = dataset_convert_toolkit.ua_detrac_convert_tool:main',
             ],
         },
     python_requires='>=3.6',    #对python的最低版本要求
