@@ -20,7 +20,6 @@ setuptools.setup(
     ],
     package_dir={"":"."},
     install_requires=[
-        'glob',
         'argparse',
         'numpy<=1.24.2',
         'opencv_python<=4.9.0.80',
