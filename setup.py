@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
  
 setuptools.setup(
     name="dataset_convert_toolkit", # 用自己的名替换其中的YOUR_USERNAME_
-    version="0.0.1",    #包版本号，便于维护版本
+    version="0.0.2",    #包版本号，便于维护版本
     author="porter pan",    #作者，可以写自己的姓名
     author_email="porter.pan@outlook.com",    #作者联系方式，可写自己的邮箱地址
     description="一个简单的深度学习数据集转换工具",#包的简述
@@ -29,8 +29,8 @@ setuptools.setup(
     ],
     enter_points={
         'console_scripts':[
-            'dataset_convert_tool = dataset_convert_toolkit.dataset_convert_tool.main',
-            'ua_detrac_convert_tool = dataset_convert_toolkit.ua_detrac_convert_tool.main',
+            'dataset_convert_tool = dataset_convert_toolkit.dataset_convert_tool:main',
+            'ua_detrac_convert_tool = dataset_convert_toolkit.ua_detrac_convert_tool:main',
             ],
         },
     python_requires='>=3.6',    #对python的最低版本要求
