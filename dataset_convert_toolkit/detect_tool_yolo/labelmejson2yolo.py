@@ -94,7 +94,7 @@ class LabelmeRectangelJson2yolo:
       pbar.update(bar_count)
     pbar.close()
     filetool.generate_sets_val_train_txt(label_file_list=self.rectangle_json_files, test_ratio=self.testRatio, 
-                                    random_seed=self.randomSeed, tranval_save_dir=self.sets_main)
+                                    random_seed=self.randomSeed, tranval_save_dir=self.sets_main, images_dir="")
     print("\033[35mcovert over, please copy all image samples to folder {}\033[0m".format(self.images_path))
   
   def rectangelJson2yolo(self, input_json, out_yoloFile):

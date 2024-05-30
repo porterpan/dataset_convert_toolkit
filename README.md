@@ -1,7 +1,7 @@
 <!--
  * @Description: 
  * @Date: 2024-05-13 19:06:07
- * @LastEditTime: 2024-05-17 10:55:02
+ * @LastEditTime: 2024-05-30 17:19:32
  * @Author: porter
  * @FilePath: /dataset_convert_toolkit/README.md
 -->
@@ -24,7 +24,7 @@ eg: traffic light annocation with command, data_annotated can replease with ./da
 labelme data_annotated --labels config/labels.txt --nodata --autosave
 ```
 
-## dataset convert
+## dataset convert yolo format
 
 1. convert labelme marsk label to yolo datasets format with command.
 
@@ -71,8 +71,9 @@ python dataset_convert_tool.py --cocotoyolo --cocojson_file 'datasetsample/coco_
 
 coco to yolo 目前没有测，因为手上没有coco数据集
 
+## labelme json(line) convert to culane
 
-4. convert labelme line convert to culane formate
+1. convert labelme line convert to culane formate
 
 ```
 python dataset_convert_tool.py --linejson2culane --line_json_dir 'datasetsample/laneline_test/label' --output_dir './laneline_culane' --labels 'config/laneline.yaml' --sample_dir 'datasetsample/laneline_test/foxcon' --crop_height 0.5
@@ -105,3 +106,35 @@ names: ['ll', 'l', 'r', 'rr']
 - Waymo Open Dataset
 - Argoverse 2
 - Lyft Level 5
+
+## labelme json(rect) convert to VOC
+
+将labelme 标注的rect labels 转换为VOC 数据集格式
+
+```
+ python dataset_convert_tool.py --labelmejson2voc --json_dir 'datasetsample/traffic_light_labelme/label' --output_dir './traffic_light_voc' --labels 'config/labels.txt'
+```
+
+## UA-DETRAC 数据集转VOC 格式数据集
+
+```bash
+ python ua_detrac_convert_tool.py --rectxml2voc --image_dir /home/udi/DataSet1/车辆检测数据集/train --xml_dir /home/udi/DataSet1/车辆检测数据集/Train-XML/DETRAC-Train-Annotations-XML --output_dir ./detrac_train
+```
+
+参数说明
+
+
+如果需要单独将YOLO 或者VOC 等格式的数据集划分为train.txt val.txt 可以参考
+
+- 按照绝对路径
+
+```
+from dataset_convert_toolkit.utils.file.py import filetool
+if __name__ == '__main__':
+    #  python train_val_split_2.py
+    filetool.generate_sets_val_train_txt_absolute_paths('/home/udi/workspace/panchuanchao/yolov8/datasets/traffic_light_yolo/images',
+                                                        endwith='.jpg',
+                                                        test_ratio=0.2, random_seed=42,
+                                                        tranval_save_dir='/home/udi/workspace/panchuanchao/yolov8/datasets/traffic_light_yolo/ImageSets/Main', 
+                                                        images_dir='/home/udi/workspace/panchuanchao/yolov8/datasets/traffic_light_yolo/images')
+```

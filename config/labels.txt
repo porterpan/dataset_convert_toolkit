@@ -1,9 +1,0 @@
-unknown
-red
-green
-yellow
-black
-red_time
-green_time
-yellow_time
-black_time

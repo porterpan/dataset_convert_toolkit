@@ -21,6 +21,7 @@ from detect_tool_yolo.labelmejson2yolo import *
 from detect_tool_yolo.rectvocxml2yolo import VocXml2YOLO
 from detect_tool_yolo.cocojson2yolo import CocoJson2YOLO
 from detect_laneline_tool_culane.labelmejson2culane import LabelmeJson2Culane
+from detect_tool_voc.labelmejson2voc import LabelmeJson2voc
 
 class ARGs:
     def __init__(self):
@@ -35,10 +36,13 @@ class ARGs:
         covertWK.add_argument('--rectjson2yolo', action='store_true', help="labelme rectangle label convert to yolo datasets")
         covertWK.add_argument('--rectvoc2yolo', action='store_true', help="VOC rectangle label convert to yolo datasets")
         covertWK.add_argument('--rectcoco2yolo', action='store_true', help="COCO rectangle label convert to yolo datasets")
-        covertWK.add_argument('--json2voc', action='store_true', help="labelme rectangle label convert to VOC datasets")
-        covertWK.add_argument('--coco2voc', action='store_true', help="coco rectangle label convert to VOC datasets")
+        
+        covertWK.add_argument('--labelmejson2voc', action='store_true', help="labelme rectangle label convert to VOC datasets")    
+        covertWK.add_argument('--cocojson2voc', action='store_true', help="coco rectangle label convert to VOC datasets")
+        
         covertWK.add_argument('--json2coco', action='store_true', help="lableme rectangle label convert to coco datasets")
         covertWK.add_argument('--voc2coco', action='store_true', help="voc rectangle label convert to coco datasets")
+        
         covertWK.add_argument('--linejson2culane', action='store_true', help="labelme line label convert to culane datasets")
         # covertWK.add_argument('--linejson2culane', action='store_true', help="labelme line label convert to culane datasets")
 
@@ -91,6 +95,9 @@ if __name__ == '__main__':
         convert.convert()
     elif args.linejson2culane:
         convert = LabelmeJson2Culane(args)
+        convert.convert()
+    elif args.labelmejson2voc:
+        convert = LabelmeJson2voc(args)
         convert.convert()
     else:
         print("please check you parameter")
